@@ -148,7 +148,7 @@ ax.set_title("Período Ajustado")
 # Save the figure to file
 fig.savefig("time_series.png", dpi=300, bbox_inches="tight")
 plt.close(fig)
-
+DP_CTRL = DP_CTRL[(DP_CTRL["_time"] >= start_date) & (DP_CTRL["_time"] <= end_date)]
 
 
 
@@ -352,11 +352,17 @@ gerar_grid_correlacao_separada(
 
 
 def generate_box_plots(df, column_to_use, save_path=None):
-    # q=3 especifica que queremos tercis (0-33%, 33-66%, 66-100%).
+    # q=3 especifica tercis (0-33%, 33-66%, 66-100%)
+    if save_path:
+        base = os.path.basename(save_path)
+        if base.startswith('boxplot_'):
+            parts = base.split('_')
+            if len(parts) > 1:
+                title_suffix = parts[1]  # palavra após 'boxplot_'
     df["Nivel_Contaminacao"] = pd.qcut(df[column_to_use], q=3, labels=["Baixo", "Médio", "Alto"])
     contagem_lotes = df["Nivel_Contaminacao"].value_counts()
     subtitulo = f"Contagem de Lotes: Baixo ({contagem_lotes.get('Baixo', 0)}), Médio ({contagem_lotes.get('Médio', 0)}), Alto ({contagem_lotes.get('Alto', 0)})"
-    
+
     plt.figure(figsize=(10, 6))
     sns.boxplot(
         x="Nivel_Contaminacao",
@@ -364,12 +370,21 @@ def generate_box_plots(df, column_to_use, save_path=None):
         data=df,
         order=["Baixo", "Médio", "Alto"],
     )
-    plt.suptitle("Dispersão da Umidade (IQR) por Nível de Contaminação de Grãos", fontsize=16, y=0.97)
+    if title_suffix == 'soma':
+        title_main = "Soma da Contagem de Grãos por Nível de Contaminação"
+    elif title_suffix == 'max':
+        title_main = "Máximo da Contagem de Grãos por Nível de Contaminação"
+    elif title_suffix == 'media':
+        title_main = "Média da Contagem de Grãos por Nível de Contaminação"
+    else:
+        title_main = f"Dispersão da Umidade (IQR) por Nível de Contaminação de Grãos - {title_suffix if title_suffix else column_to_use}"
+
+    plt.suptitle(title_main, fontsize=16, y=0.97)
     plt.title(subtitulo, fontsize=12)
     plt.xlabel(f"Nível de {column_to_use}", fontsize=12)
     plt.ylabel("Variabilidade da Umidade (IQR)", fontsize=12)
     plt.grid(axis="y", linestyle="--", alpha=0.7)
-    
+
     if save_path:
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
         plt.close()  # Fecha a figura para evitar sobreposição
@@ -505,8 +520,8 @@ def analyse_hybrid(DP_CTRL, DF_DB_CTRL, HYB_COD):
     print(f"GRUPO LOW_COUNT {HYB_COD}\n")
     fit_batch_data(DB_CTRL_HYB, CTRL_LOW_HYB)
 
-for hyb in DB1_CTRL["HYB_COD"].unique():
-    analyse_hybrid(DP_CTRL, DB1_CTRL, hyb)
+#for hyb in DB1_CTRL["HYB_COD"].unique():
+#    analyse_hybrid(DP_CTRL, DB1_CTRL, hyb)
 
 
 
