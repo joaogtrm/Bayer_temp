@@ -137,11 +137,11 @@ fig, ax = plt.subplots()
 
 # Plot data outside the date range
 DP_CTRL_outside = DP_CTRL[(DP_CTRL["_time"] < start_date) | (DP_CTRL["_time"] > end_date)]
-DP_CTRL_outside.plot(x="_time", y="COUNT_GRAINS", ax=ax, label='Outside Range')
+DP_CTRL_outside.plot(x="_time", y="COUNT_GRAINS", ax=ax, label='Período Desconsiderado')
 
 # Plot data inside the date range in red
 DP_CTRL_inside = DP_CTRL[(DP_CTRL["_time"] >= start_date) & (DP_CTRL["_time"] <= end_date)]
-DP_CTRL_inside.plot(x="_time", y="COUNT_GRAINS", ax=ax, color='red', label='Inside Range')
+DP_CTRL_inside.plot(x="_time", y="COUNT_GRAINS", ax=ax, color='red', label='Período Ajustado')
 
 ax.set_title("Período Ajustado")
 
